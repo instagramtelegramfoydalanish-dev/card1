@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ipak Yuli Bank x Liliya Dulat | Interactive VISA</title>
     <style>
+        /* ASOSIY FON */
         body {
             margin: 0;
             padding: 0;
@@ -16,74 +17,94 @@
             font-family: 'Segoe UI', sans-serif;
             overflow: hidden;
         }
+
         #particles-js {
             position: absolute;
             width: 100%;
             height: 100%;
             z-index: 1;
         }
+
         .card-container {
             position: relative;
             width: 420px;
             height: 265px;
             perspective: 1200px;
             z-index: 10;
+            cursor: pointer;
         }
+
+        /* KARTA TRANZITSIYASI */
         .visa-card {
             width: 100%;
             height: 100%;
-            background: #000;
-            border-radius: 18px;
             position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
             transform-style: preserve-3d;
-            transition: box-shadow 0.5s ease;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.5s ease;
         }
+
+        .card-container.flipped .visa-card {
+            transform: rotateY(180deg);
+        }
+
         .card-container:hover .visa-card {
             box-shadow: 0 0 30px rgba(57, 255, 20, 0.2);
         }
-        .card-object {
+
+        /* OLD VA ORQA TOMONLAR */
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #000;
+            overflow: hidden;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            padding-top: 35px;
+        }
+
+        .magnetic-stripe {
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(90deg, #a0a0a0, #e0e0e0, #a0a0a0); /* Silver chiziq */
+        }
+
+        /* OBYEKTLAR VA PORTRET EFFEKTI */
+        .card-object, .portrait-bg {
             position: absolute;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
             z-index: 5;
-            filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
         }
-        .card-object:hover {
-            transform: scale(1.15) translateZ(30px);
+
+        /* Hoverda yaqinlashish va Neon */
+        .card-object:hover, .portrait-bg:hover {
+            transform: scale(1.1) translateZ(40px);
             filter: drop-shadow(0 0 15px #39FF14) brightness(1.2);
+            z-index: 10;
         }
-        .logos-top {
-            top: 25px;
-            left: 25px;
-            width: 170px;
-        }
-        .card-chip {
-            top: 105px;
-            left: 30px;
-            width: 65px;
-        }
-        .visa-bottom {
-            bottom: 25px;
-            right: 30px;
-            width: 85px;
-        }
+
+        /* JOYLASHUV */
+        .logos-top { top: 25px; left: 25px; width: 170px; }
+        .card-chip { top: 105px; left: 30px; width: 65px; }
+        .visa-bottom { bottom: 25px; right: 30px; width: 85px; }
+
         .portrait-bg {
-            position: absolute;
             top: 0;
             right: 0;
             height: 100%;
             width: auto;
             z-index: 2;
-            opacity: 0.7;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
+            opacity: 0.8;
+            pointer-events: auto; /* Hover ishlashi uchun */
         }
-        .card-container:hover .portrait-bg {
-            opacity: 0.9;
-        }
+
         .valid-text {
             position: absolute;
             bottom: 65px;
@@ -100,18 +121,27 @@
 
 <div id="particles-js"></div>
 
-<div class="card-container">
+<div class="card-container" id="container" onclick="toggleFlip()">
     <div class="visa-card" id="card">
-        <img src="photo_5366600046704530879_y.jpg" class="portrait-bg">
-        <img src="photo_5366600046704530877_x.jpg" class="card-object logos-top">
-        <img src="photo_5366600046704530876_m.jpg" class="card-object card-chip">
-        <img src="photo_5366600046704530881_y.jpg" class="card-object visa-bottom">
-        <div class="valid-text">Valid<br>Thru</div>
+        
+        <div class="card-face card-front">
+            <img src="Picsart_26-04-01_13-52-59-002.jpg" class="portrait-bg">
+            <img src="Picsart_26-04-01_13-53-32-522.jpg" class="card-object logos-top">
+            <img src="Picsart_26-03-31_20-19-14-279.jpg" class="card-object card-chip">
+            <img src="Picsart_26-04-03_12-01-33-102.jpg" class="card-object visa-bottom">
+            <div class="valid-text">Valid<br>Thru</div>
+        </div>
+
+        <div class="card-face card-back">
+            <div class="magnetic-stripe"></div>
+        </div>
+
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 <script>
+// Particles.js sozlamalari
 particlesJS('particles-js', {
     "particles": {
         "number": { "value": 50 },
@@ -125,28 +155,37 @@ particlesJS('particles-js', {
 });
 
 const card = document.getElementById('card');
-const container = document.querySelector('.card-container');
+const container = document.getElementById('container');
+let isFlipped = false;
 
+// Aylantirish funksiyasi
+function toggleFlip() {
+    isFlipped = !isFlipped;
+    container.classList.toggle('flipped');
+}
+
+// 3D Hover effekti
 container.addEventListener('mousemove', (e) => {
+    if (isFlipped) return;
     const rect = container.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-
-    const rotateX = (y - centerY) / 10;
-    const rotateY = (centerX - x) / 10;
+    const rotateX = (y - centerY) / 12;
+    const rotateY = (centerX - x) / 12;
 
     card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
 });
 
 container.addEventListener('mouseleave', () => {
+    if (isFlipped) return;
     card.style.transform = 'rotateX(0deg) rotateY(0deg)';
-    card.style.transition = 'all 0.5s ease';
+    card.style.transition = 'transform 0.5s ease';
 });
 
 container.addEventListener('mouseenter', () => {
+    if (isFlipped) return;
     card.style.transition = 'none';
 });
 </script>
